@@ -12,7 +12,7 @@ controller_manager:
 panda_arm_controller:
   ros__parameters:
     command_interfaces:
-      - effort
+      - effort # for real arm: -effort, for fake arm: -position
     state_interfaces:
       - position
       - velocity
@@ -24,6 +24,7 @@ panda_arm_controller:
       - panda_joint5
       - panda_joint6
       - panda_joint7
+    allow_nonzero_velocity_at_trajectory_end: false
     gains:
       panda_joint1: { p: 600., d: 30., i: 0., i_clamp: 1., ff_velocity_scale: 1. }
       panda_joint2: { p: 600., d: 30., i: 0., i_clamp: 1., ff_velocity_scale: 1. }

@@ -28,6 +28,8 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 import yaml
 
+from launch.substitutions import PythonExpression
+
 
 def load_yaml(package_name, file_path):
     package_path = get_package_share_directory(package_name)
@@ -224,11 +226,15 @@ def generate_launch_description():
         remappings=[('joint_states', 'franka/joint_states')],
     )
 
-    ros2_controllers_path = os.path.join(
-        get_package_share_directory('franka_moveit_config'),
+    ros2_controllers_path = PathJoinSubstitution([
+        FindPackageShare('franka_moveit_config'),
         'config',
-        'panda_mock_ros_controllers.yaml' if use_fake_hardware else 'panda_ros_controllers.yaml',
-    )
+        PythonExpression([
+            "'panda_mock_ros_controllers.yaml' if '",
+            use_fake_hardware,
+            "' == 'true' else 'panda_ros_controllers.yaml'"
+        ])
+    ])
 
     ros2_control_node = Node(
         package='controller_manager',
@@ -285,7 +291,7 @@ def generate_launch_description():
     
     load_camera_arg = DeclareLaunchArgument(
             load_camera_parameter_name,
-            default_value='true',
+            default_value='false',
             description='Use Flir camera as an end-effector, otherwise, the robot is loaded '
                         'without an end-effector.')  
     
@@ -296,7 +302,7 @@ def generate_launch_description():
 
     load_gripper_arg = DeclareLaunchArgument(
             load_gripper_parameter_name,
-            default_value='false',
+            default_value='true',
             description='Use Franka Gripper as an end-effector, otherwise, the robot is loaded '
                         'without an end-effector.')
     
